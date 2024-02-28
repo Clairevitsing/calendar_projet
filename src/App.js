@@ -13,6 +13,7 @@ function App() {
   console.table(month);
   const [currentMonth, setCurrentMonth] = useState(getMonth());
   const { monthIndex, showEventModal } = useContext(GlobalContext);
+ 
 
   useEffect(() => {
     setCurrentMonth(getMonth(monthIndex));
