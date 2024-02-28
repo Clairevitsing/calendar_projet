@@ -127,7 +127,40 @@ function EventModal() {
     setDownloadDisabled(true);
   };
 
-  const sendData = () => {
+  const checkOverlap = async () => {
+    // Convertir les dates et heures en objets Date pour faciliter la comparaison
+    const newEventStart = new Date(`${startDate}T${startTime}`);
+    const newEventEnd = new Date(`${endDate}T${endTime}`);
+
+    // Récupérer tous les événements du même jour
+    const response = await fetch(
+      `http://localhost:4000/api/event?date=${startDate}`
+    );
+    const existingEvents = await response.json();
+
+    // Vérifier chaque événement existant pour voir s'il se chevauche avec le nouvel événement
+    for (const event of existingEvents) {
+      const eventStart = new Date(`${event.startDate}T${event.startTime}`);
+      const eventEnd = new Date(`${event.endDate}T${event.endTime}`);
+
+      if (newEventStart < eventEnd && newEventEnd > eventStart) {
+        // Il y a un chevauchement
+        return true;
+      }
+    }
+
+    // Aucun chevauchement trouvé
+    return false;
+  };
+
+  const sendData = async() => {
+    // event.preventDefault();
+    const overlap = await checkOverlap();
+
+  if (overlap) {
+    alert('Les horaires sont occupés');
+    return;
+  }
     const data = {
       startDate: startDate,
       startTime: startTime,
@@ -266,7 +299,7 @@ function EventModal() {
                 }
               }}
             >
-              <div class="icon">
+              <div className="icon">
                 {/* Icone d'enregistrement ou d'arrêt d'enregistrement */}
                 {recording ? (
                   <img src={recordingImage} alt="recording" />
@@ -297,7 +330,7 @@ function EventModal() {
                 onClick={clearResult}
                 disabled={!result}
               >
-                <span class="material-icons-outlined cursor-pointer text-white-600 mx-2">
+                <span className="material-icons-outlined cursor-pointer text-white-600 mx-2">
                   delete
                 </span>
                 <p>Clear</p>
@@ -310,7 +343,7 @@ function EventModal() {
                 onClick={download}
                 disabled={downloadDisabled}
               >
-                <span class="material-icons-outlined cursor-pointer text-white-600 mx-2">
+                <span className="material-icons-outlined cursor-pointer text-white-600 mx-2">
                   download
                 </span>
                 <p>Download</p>
@@ -323,7 +356,7 @@ function EventModal() {
                 onClick={sendData}
                 disabled={sendDataDisabled}
               >
-                <span class="material-icons-outlined cursor-pointer text-white-600 mx-2">
+                <span className="material-icons-outlined cursor-pointer text-white-600 mx-2">
                   save
                 </span>
                 <p>Save</p>
